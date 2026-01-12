@@ -1,0 +1,107 @@
+# Modèles de Recommandation pour votre Application
+
+Pour un système de recommandation de films basé sur une sélection de 5 films, voici les approches que je vous recommande, classées par pertinence pour votre projet :
+
+## 1. **Content-Based Filtering (Filtrage par Contenu)** ⭐ Recommandé pour commencer
+
+C'est l'approche la plus adaptée à votre cas, car vous n'avez pas besoin de données utilisateur historiques.
+
+**Principe :** Analyser les caractéristiques des 5 films sélectionnés et trouver des films similaires.
+
+**Features à utiliser :**
+- Genre principal et secondaire (pondération forte)
+- Réalisateur
+- Acteurs (utiliser TF-IDF pour gérer les multiples valeurs)
+- Année (avec une tolérance de ±10 ans)
+- Rating (similarité de note)
+- Runtime (films de durée similaire)
+
+**Techniques concrètes :**
+- **Cosine Similarity** : Calculer la similarité entre vecteurs de features
+- **TF-IDF** : Pour vectoriser les genres, acteurs, réalisateurs
+- **Weighted Features** : Donner plus d'importance aux genres et au rating
+
+**Avantages :** Simple à implémenter, pas besoin d'historique utilisateur, expliquable
+**Inconvénients :** Peut manquer de diversité, limité aux features disponibles
+
+---
+
+## 2. **Hybrid Approach : Content-Based + Popularity** ⭐⭐ Le plus équilibré
+
+Combiner la similarité de contenu avec des métriques de popularité.
+
+**Formule de scoring :**
+```
+Score = 0.7 × (Similarité_Contenu) + 0.2 × (Rating_Normalisé) + 0.1 × (Popularité_Box_Office)
+```
+
+**Avantages :** Équilibre entre similarité et qualité, recommande des films populaires ET pertinents
+**Inconvénients :** Nécessite de bien calibrer les poids
+
+---
+
+## 3. **K-Nearest Neighbors (KNN)**
+
+Trouver les K films les plus proches des 5 films sélectionnés dans l'espace des features.
+
+**Implémentation :**
+- Encoder toutes les features (One-Hot pour les genres, normalisation pour Rating/Year)
+- Utiliser KNN avec distance euclidienne ou Manhattan
+- Agréger les résultats des 5 films sélectionnés
+
+**Avantages :** Facile à implémenter avec scikit-learn, performant
+**Inconvénients :** Peut être lent sur mobile si mal optimisé
+
+---
+
+## 4. **Matrix Factorization (SVD/NMF)** - Avancé
+
+Si vous voulez aller plus loin et que vous avez accès à des données d'évaluations utilisateurs.
+
+**Principe :** Décomposer une matrice utilisateur-film pour trouver des facteurs latents.
+
+**Avantages :** Capture des patterns complexes
+**Inconvénients :** Nécessite des données utilisateur, plus complexe à implémenter
+
+---
+
+## 5. **Deep Learning (Neural Collaborative Filtering)** - Pour plus tard
+
+Utiliser un réseau de neurones pour apprendre les embeddings de films.
+
+**Avantages :** Très performant avec beaucoup de données
+**Inconvénients :** Trop complexe pour un premier projet, lourd pour Android
+
+---
+
+## 🎯 Ma Recommandation : Approche par Étapes
+
+### Phase 1 - MVP (Minimum Viable Product)
+**Content-Based avec Cosine Similarity**
+1. Créer un vecteur de features pour chaque film
+2. Calculer la similarité entre les 5 films sélectionnés et tous les autres
+3. Agréger les scores (moyenne ou somme)
+4. Retourner les 5 films avec les meilleurs scores
+
+### Phase 2 - Amélioration
+**Hybrid Approach**
+- Ajouter un système de pondération (genre > réalisateur > acteurs)
+- Intégrer le Rating et le Box Office
+- Ajouter un facteur de diversité (éviter de recommander 5 films du même réalisateur)
+
+### Phase 3 - Optimisation
+- Implémenter un filtre de "déjà vu" si vous ajoutez un système utilisateur
+- A/B testing pour optimiser les poids
+- Ajouter des explications ("Recommandé car vous avez aimé X")
+
+---
+
+## 📱 Considérations Android
+
+Pour l'implémentation sur Android :
+- **Pré-calculer** la matrice de similarité côté serveur ou lors de l'installation
+- Utiliser **SQLite** ou **Room** pour stocker les films et scores
+- Envisager **TensorFlow Lite** si vous voulez du ML on-device
+- Optimiser avec **indices** pour les requêtes rapides
+
+---
